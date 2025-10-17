@@ -109,8 +109,10 @@ impl DirectionKeys {
 impl Plugin for PanCamPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
-            (do_camera_movement, do_camera_zoom).in_set(PanCamSystems),
+            PostUpdate,
+            (do_camera_movement, do_camera_zoom)
+                .in_set(PanCamSystems)
+                .after(TransformSystems::Propagate),
         )
         .add_observer(on_clamp_bounds)
         .register_type::<PanCam>()
@@ -121,7 +123,7 @@ impl Plugin for PanCamPlugin {
             app.init_resource::<EguiWantsFocus>()
                 .add_systems(PostUpdate, check_egui_wants_focus)
                 .configure_sets(
-                    Update,
+                    PostUpdate,
                     PanCamSystems.run_if(resource_equals(EguiWantsFocus(false))),
                 );
         }
